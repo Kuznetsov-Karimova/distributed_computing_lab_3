@@ -24,8 +24,8 @@ __global__ void CalcForces(int n, float *m, float *positions, float *totalF) {
     if (first_point >= second_point || first_point >= n) {
         return;
     }
-    float dist_x = positions[first_point * 2] - positions[second_point * 2];
-    float dist_y = positions[first_point * 2 + 1] - positions[second_point * 2 + 1];
+    float dist_x = positions[second_point * 2] - positions[first_point * 2];
+    float dist_y = positions[second_point * 2 + 1] - positions[first_point * 2 + 1];
     float norm = powf(sqrtf(dist_x * dist_x + dist_y * dist_y), 3.0f) + 1e-12;
     float f_coef = G * m[first_point] * m[second_point] / norm;
     atomicAdd(&totalF[2 * first_point], dist_x * f_coef);
