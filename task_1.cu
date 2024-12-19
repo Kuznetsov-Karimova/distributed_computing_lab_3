@@ -21,6 +21,7 @@ __host__ void WriteState(FILE *out, int n, float time, float *positions) {
 __global__ void CalcForces(int n, float *m, float *positions, float *totalF) {
     int first_point = blockDim.x * blockIdx.x + threadIdx.x;
     int second_point = blockDim.y * blockIdx.y + threadIdx.y;
+    // Будем обновлять сразу обе противоположные силы
     if (first_point >= second_point || first_point >= n) {
         return;
     }
@@ -28,6 +29,7 @@ __global__ void CalcForces(int n, float *m, float *positions, float *totalF) {
     float dist_y = positions[second_point * 2 + 1] - positions[first_point * 2 + 1];
     float norm = powf(sqrtf(dist_x * dist_x + dist_y * dist_y), 3.0f) + 1e-12;
     float f_coef = G * m[first_point] * m[second_point] / norm;
+    // Атомарно находим суммы сил, действующих на точки со стороны других точек. Получаем полные силы
     atomicAdd(&totalF[2 * first_point], dist_x * f_coef);
     atomicAdd(&totalF[2 * first_point + 1], dist_y * f_coef);
     atomicAdd(&totalF[2 * second_point], - dist_x * f_coef);
@@ -41,8 +43,11 @@ __global__ void CalcState(int n, float* m, float *positions, float *V, float *F)
     }
     int point_coord = threadIdx.y;
     int i = 2 * point_index + point_coord;
+    // Обновляем позицию точки
     positions[i] += V[i] * dt;
+    // Обновляем скорость
     V[i] += F[i] / m[point_index] * dt;
+    // Зануляем силу для следующего вызова CalcForces
     F[i] = 0.0f;
 }
 
