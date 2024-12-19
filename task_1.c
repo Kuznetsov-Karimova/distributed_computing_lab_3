@@ -20,8 +20,8 @@ void WriteState(FILE *out, int n, float time, float *positions) {
 void CalcForces(int n, float *m, float *positions, float *totalF) {
     for (int first_point = 0; first_point < n; ++first_point)
         for (int second_point = 0; second_point < first_point; ++second_point) {
-            float dist_x = positions[first_point * 2] - positions[second_point * 2];
-            float dist_y = positions[first_point * 2 + 1] - positions[second_point * 2 + 1];
+            float dist_x = positions[second_point * 2] - positions[first_point * 2];
+            float dist_y = positions[second_point * 2 + 1] - positions[first_point * 2 + 1];
             float norm = powf(sqrtf(dist_x * dist_x + dist_y * dist_y), 3.0f) + 1e-12;
             float f_coef = G * m[first_point] * m[second_point] / norm;
             totalF[2 * first_point] += dist_x * f_coef;
