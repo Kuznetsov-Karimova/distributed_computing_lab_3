@@ -8,7 +8,7 @@ const float G = 6.67e-11;
 const float dt = 0.01;
 const float final_time = 100.0f;
 
-void WriteState(FILE *out, int n, float time, float *positions) {
+__host__ void WriteState(FILE *out, int n, float time, float *positions) {
     fprintf(out, "%f", time);
     for (int index_point = 0; index_point < n; ++index_point) {
         fprintf(out, ",%f,%f", positions[2 * index_point],  positions[2 * index_point + 1]);
@@ -16,7 +16,7 @@ void WriteState(FILE *out, int n, float time, float *positions) {
     fprintf(out, "\n");
 }
 
-void CalcForces(int n, float *m, float *positions, float *totalF) {
+__global__ void CalcForces(int n, float *m, float *positions, float *totalF) {
     
     for (int first_point = 0; first_point < n; ++first_point) 
         for (int second_point = 0; second_point < i; ++second_point) {
@@ -31,7 +31,7 @@ void CalcForces(int n, float *m, float *positions, float *totalF) {
         }
 }
 
-void CalcState(int n, float* m, float *positions, float *V, float *F) {
+__global__ void CalcState(int n, float* m, float *positions, float *V, float *F) {
     for (int i = 0; i < 2 * n; ++i) {
         positions[i] += V[i] * dt;
         V[i] += F[i] / m[i / 2] * dt;
